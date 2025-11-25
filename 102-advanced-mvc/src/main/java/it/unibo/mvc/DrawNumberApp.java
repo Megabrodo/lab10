@@ -15,6 +15,10 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
 
     private final DrawNumber model;
     private final List<DrawNumberView> views;
+    private static final String MIN = "minimum";
+    private static final String MAX = "maximum";
+    private static final String ATT = "attempts";
+    private static final String FILE = "config.yml";
 
     /**
      * @param views
@@ -31,15 +35,15 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
         }
 
         final Configuration.Builder config = new Configuration.Builder();
-        final InputStream inputConfig = ClassLoader.getSystemResourceAsStream("config.yml");
+        final InputStream inputConfig = ClassLoader.getSystemResourceAsStream(FILE);
         try (BufferedReader read = new BufferedReader(new InputStreamReader(inputConfig))) {
             String s;
             while ((s = read.readLine()) != null) {
                 String[] split = s.split(":");
                 switch (split[0]) {
-                    case "minimum" -> config.setMin(Integer.parseInt(split[1].trim()));
-                    case "maximum" -> config.setMax(Integer.parseInt(split[1].trim()));
-                    case "attempts" -> config.setAttempts(Integer.parseInt(split[1].trim()));
+                    case MIN -> config.setMin(Integer.parseInt(split[1].trim()));
+                    case MAX -> config.setMax(Integer.parseInt(split[1].trim()));
+                    case ATT -> config.setAttempts(Integer.parseInt(split[1].trim()));
                     default -> Arrays.stream(views).forEach(v -> v.displayError("Cannot read from file"));
                 }
             }
@@ -87,7 +91,9 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
      */
     public static void main(final String... args) throws FileNotFoundException {
         new DrawNumberApp(new DrawNumberViewImpl(),
-                          new DrawNumberViewImpl());
-    }
+                          new DrawNumberViewImpl(),
+                          new PrintStreamView(System.out),
+                          new PrintStreamView("DrawLog.txt"));
 
+    }
 }
